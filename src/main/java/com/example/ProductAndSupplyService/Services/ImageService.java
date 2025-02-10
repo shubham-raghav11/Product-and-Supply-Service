@@ -34,6 +34,7 @@ import java.util.ArrayList;
 
 
     // method to create Image Response of images //
+
     private ImageResponseDto createImageResponseDtoFromImage(List<String> savedImagesUrls){
 
         return ImageResponseDto.builder()
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 
     //////////////////////////////// to upload the image for the specific product ////////////////////////////////////////////
 
-    public ResponseEntity<SuccessResponseDto> upload(Long id, ImageUploadRequestDto imageUploadRequestDto){
+    public ResponseEntity<SuccessResponseDto> upload(Integer id, ImageUploadRequestDto imageUploadRequestDto){
         
             if (id == null) {
                 throw new ProductNotFoundException("Provide the product id which you want to add image in");
@@ -82,7 +83,7 @@ import java.util.ArrayList;
 
 ///////////////////////// to update the specific image of the specific product //////////////////////////////////////
 
-     public ResponseEntity<SuccessResponseDto> update(Long imageId, ImageUpdateRequestDto imageUpdateRequestDto){
+     public ResponseEntity<SuccessResponseDto> update(Integer imageId, ImageUpdateRequestDto imageUpdateRequestDto){
 
          Images img = imageRepository.findById(imageId)
                  .orElseThrow(() -> new ImageNotFoundException("Image with ID " + imageId + " not found."));
@@ -105,7 +106,7 @@ import java.util.ArrayList;
 
 /////////////////////////////////// Delete the image of the product you want //////////////////////////////////////////////
 
-    public ResponseEntity<SuccessResponseDto> deleteProductImage(Long id, Long imageId) {
+    public ResponseEntity<SuccessResponseDto> deleteProductImage(Integer id, Integer imageId) {
         Optional<Products> product = productService.findById(id);
 
         if (product.isEmpty()) {
@@ -130,41 +131,9 @@ import java.util.ArrayList;
         return ResponseEntity.ok(response);
     }
 
-
-    /////////////////////////////////////// get image by image id //////////////////////////////////////////
-
-    public ResponseEntity<SuccessResponseDto> getImageByImageId(Long imageId){
-        Optional<Images> opt = imageRepository.findById(imageId);
-
-        if (opt.isEmpty()) {
-            throw new ImageNotFoundException("Image with ID " + imageId + " not found.");
-        }
-
-        SuccessResponseDto response = new SuccessResponseDto("Image found successfully",opt.get());
-
-        return ResponseEntity.ok(response);
-    }
-
-    ////////////////////////////////////// Get all image of a specific product ////////////////////////////////////
-
-     public ResponseEntity<List<String>> getImagesById(Long id){
-
-        List<Images> images = imageRepository.findByProducts_Id(id);
-
-         if (images.isEmpty()) {
-             throw new ImageNotFoundException("Image not found for product id :- " + id);
-         }
-         List<String> imageUrls = new ArrayList<>();
-
-         for (Images image : images) {
-             imageUrls.add(image.getImageUrl()); // Extracting image URL
-         }
-         return ResponseEntity.ok(imageUrls);
-     }
-
      /////////////////////////////////////// Bulk delete images ///////////////////////////////////////////////////
 
-     public ResponseEntity<SuccessResponseDto> deleteMultipleImages(List<Long> imageIds) {
+     public ResponseEntity<SuccessResponseDto> deleteMultipleImages(List<Integer> imageIds) {
          if (imageIds == null || imageIds.isEmpty()) {
              throw new IllegalArgumentException("Image IDs list cannot be empty.");
          }
@@ -180,7 +149,7 @@ import java.util.ArrayList;
          return ResponseEntity.ok(new SuccessResponseDto("Images deleted successfully"));
      }
 
-    ////////////////////////////////////// called by product repository //////////////////////////////////////////////////////////
+    ////////////////////////////////////// called by product service //////////////////////////////////////////////////////////
 
      public void save(Images image) {
           imageRepository.save(image);
@@ -188,6 +157,18 @@ import java.util.ArrayList;
 
      public void saveAll(List<Images> newImages) {
          imageRepository.saveAll(newImages);
+     }
+
+     public Optional<Images> findById(Integer imageId) {
+        return imageRepository.findById(imageId);
+     }
+
+     public List<Images> findByProducts_Id(Integer id) {
+        return imageRepository.findByProducts_Id(id);
+     }
+
+     public List<Images> findAllById(List<Integer> imageIds) {
+        return imageRepository.findAllById(imageIds);
      }
  }
 

@@ -15,10 +15,11 @@ import com.example.ProductAndSupplyService.Enums.Category;
 import com.example.ProductAndSupplyService.SuccessResponse.SuccessResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ public class ProductService {
 
     @Lazy
     @Autowired
-    private ImageService imageService;   // this is to be changed
+    private ImageService imageService;
 
     ////////////////////////////////// used to create the product from dto ////////////////////////////////////////////////////////
 
@@ -54,7 +55,7 @@ public class ProductService {
                 .build();
     }
 
-    private ProductResponseDto convertProductToResponseDto(Products product) {
+    private ProductResponseDto getProductResponseDto(Products product) {
 
         return ProductResponseDto.builder()
                 .productName(product.getProductName())
@@ -62,7 +63,6 @@ public class ProductService {
                 .brandName(product.getBrandName())
                 .images(product.getImages()) // Ensure this is correctly mapped
                 .price(85.00)
-//                .message("Product retrieved successfully") // Optional message
                 .build();
     }
 
@@ -87,11 +87,9 @@ public class ProductService {
         return list;
     }
 
-    private void validateImages(List<String> list){
+//     this method checks that the image is valid (eg :- .jpg, .png type)
 
-        if (CollectionUtils.isEmpty(list)) {
-            throw new ImageNotFoundException("Please provide at least one image of the product");
-        }
+    private void validateImageLink(List<String> list){
 
         if (list.stream()
                 .anyMatch(img -> img == null || img.trim().isEmpty())) {
@@ -99,11 +97,13 @@ public class ProductService {
         }
     }
 
+///////////////////////////////// Creating the product ///////////////////////////////////////////////////////////////
+
     public ResponseEntity<ProductResponseDto> create(ProductCreationRequestDto productCreationRequestDto){
 
         try {
 //             Check if images are provided
-            validateImages(productCreationRequestDto.getImages());
+//            validateImages(productCreationRequestDto.getImages());
 
             // Creating the product (without images)
             Products products = createProductDtoToProduct(productCreationRequestDto);
@@ -116,7 +116,7 @@ public class ProductService {
             products.setImages(savedImages);
 
             // Convert to Response DTO
-            ProductResponseDto responseDto = convertProductToResponseDto(products);
+            ProductResponseDto responseDto = getProductResponseDto(products);
 
             // Return ResponseEntity with the built response
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -129,10 +129,10 @@ public class ProductService {
 
 /////////////////////////////////updating the existing products on the basis of the productId./////////////////////////////////////////////////////////////
 
-    public ResponseEntity<ProductResponseDto> update(Long id, ProductUpdationRequestDto productUpdationRequestDto) {
+    public ResponseEntity<ProductResponseDto> update(Integer id, ProductUpdationRequestDto productUpdationRequestDto) {
         // Fetch existing product
         Products product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found for the given productId"));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found for the given product id"));
 
         // Update fields only if they're not null
         if (productUpdationRequestDto.getProductName() != null) {
@@ -159,8 +159,8 @@ public class ProductService {
         productRepository.save(product);
 
         // Handle Image Updates (Append New Images)
-        if (productUpdationRequestDto.getImages() != null && !productUpdationRequestDto.getImages().isEmpty()) {
-            validateImages(productUpdationRequestDto.getImages());
+//        if (productUpdationRequestDto.getImages() != null && !productUpdationRequestDto.getImages().isEmpty()) {
+//            validateImages(productUpdationRequestDto.getImages());
 
             // Save each image and associate with the product
             List<Images> newImages = productUpdationRequestDto.getImages().stream()
@@ -183,93 +183,15 @@ public class ProductService {
             }
             // Append new images to existing ones
             product.getImages().addAll(newImages);
-        }
-        ProductResponseDto responseDto = convertProductToResponseDto(product);
+//        }
+        ProductResponseDto responseDto = getProductResponseDto(product);
         // Return success response with updated product (including images)
         return ResponseEntity.ok(responseDto);
     }
 
-///////////////////////////////////////// getting all products.(will try to apply the limit also)//////////////////////////////////////////////////////
+/////////////////////////////////// Delete the product means soft deleting the products. /////////////////////////////////////////////
 
-    public ResponseEntity<List<Products>> getAllProducts(){
-        List<Products> list = productRepository.findAll();
-        return ResponseEntity.ok(list);
-    }
-
-//////////////////////////// get product by productId or productName or by both (productId and productName). ///////////////////////////////////////////////////////
-
-//    public ResponseEntity<?> getProducts(Long id, String product_Name) {
-//        if (id == null && product_Name == null) {
-//            throw new ProductNotFoundException("Provide at least one filter criteria either :- (id or product_Name)");
-//        }
-//
-////        if(id!=null && product_Name==null){
-////            list.add(getProductById(id));
-////        }
-////        else{
-////            list = productRepository.findByProductName(productName);
-////        }
-//        return ResponseEntity.ok(new ArrayList<>());
-//  }
-
-/////////////////////////////////////////// get products by category ////////////////////////////////////////////////////////////
-
-public ResponseEntity<List<Products>> getByCategory(String category) {
-
-    Category categoryEnum = Category.valueOf(category.toUpperCase());
-
-    List<Products> products = productRepository.findByCategory(categoryEnum);
-
-    if (products.isEmpty()) {
-        throw new ProductNotFoundException("No products found for category: " + category);
-    }
-
-    return ResponseEntity.ok(products);
-}
-
-//    /////////////////////////////////////////////// get product by productName. //////////////////////////////////////////////////////////////////////////
-
-    public ResponseEntity<List<Products>> getProductByName(String productName) {
-
-        List<Products> products = productRepository.findByProductName(productName);
-        if (products.isEmpty()) {
-            throw new ProductNotFoundException("Invalid product_Name: Product not found");
-        }
-        return ResponseEntity.ok(products);
-    }
-
-////////////////////////////////// Get products by brand name //////////////////////////////////////////////////////////
-
-    public ResponseEntity<List<ProductResponseDto>> getByBrand(String brandName){
-        List<Products> list = productRepository.findByBrandName(brandName);
-
-        if(list.isEmpty()){
-            throw new ProductNotFoundException("Product not found for brand name :- " + brandName);
-        }
-
-        List<ProductResponseDto> res = new ArrayList<>();
-
-        for(Products product : list){
-            ProductResponseDto responses = convertProductToResponseDto(product);
-            res.add(responses);
-        }
-
-        return ResponseEntity.ok(res);
-    }
-
-//    /////////////////////////////////////////////// get product by productId ////////////////////////////////////////////////////////
-
-   public ResponseEntity<ProductResponseDto> getProductById(Long id){
-
-       Products product = productRepository.findById(id)
-               .orElseThrow(() -> new ProductNotFoundException("Invalid product id: Product not found"));
-      
-               return ResponseEntity.ok(convertProductToResponseDto(product));
-   }
-
-//    ///////////////////////////////// Delete the product means soft deleting the products. /////////////////////////////////////////////
-//
-    public ResponseEntity<SuccessResponseDto> deleteProduct(Long id){
+    public ResponseEntity<SuccessResponseDto> deleteProduct(Integer id){
 
         Optional<Products> product = productRepository.findById(id);
 
@@ -285,8 +207,27 @@ public ResponseEntity<List<Products>> getByCategory(String category) {
         return ResponseEntity.ok(response);
     }
 
-    public Optional<Products> findById(Long id) {
+
+/////////////////////////////// methods to be called by the search service ///////////////////////////////
+
+    public Optional<Products> findById(Integer id) {
         return productRepository.findById(id);
+    }
+
+    public List<Products> getProductByCategory(Category category) {
+        return productRepository.findProductByCategory(category);
+    }
+
+    public List<Products> getProductByName(String productName) {
+        return productRepository.findByProductName(productName);
+    }
+
+    public List<Products> getProductByBrand(String brandName) {
+        return productRepository.findProductByBrandName(brandName);
+    }
+
+    public Page<Products> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 }
 

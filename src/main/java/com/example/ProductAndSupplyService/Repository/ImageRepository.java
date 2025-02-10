@@ -12,16 +12,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ImageRepository  extends JpaRepository<Images,Long> {
+public interface ImageRepository  extends JpaRepository<Images,Integer> {
 
     List<Images> findByProducts(Products products);
 
-    void deleteById(Long imageId);
+    void deleteById(Integer imageId);
 
-    List<Images> findByProducts_Id(Long id);
+    List<Images> findByProducts_Id(Integer id);
 
     @Modifying
     @Query("DELETE FROM Images i WHERE i.id IN :imageIds")
-    void deleteImagesByIds(@Param("imageIds") List<Long> imageIds);
+    void deleteImagesByIds(@Param("imageIds") List<Integer> imageIds);
 
 }
