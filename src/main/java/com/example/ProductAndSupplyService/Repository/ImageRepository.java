@@ -20,8 +20,6 @@ public interface ImageRepository  extends JpaRepository<Images,Integer> {
 
     List<Images> findByProducts_Id(Integer id);
 
-    @Modifying
-    @Query("DELETE FROM Images i WHERE i.id IN :imageIds")
-    void deleteImagesByIds(@Param("imageIds") List<Integer> imageIds);
+
 
 }

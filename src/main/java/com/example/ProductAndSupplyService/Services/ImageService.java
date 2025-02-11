@@ -15,11 +15,14 @@ import com.example.ProductAndSupplyService.ResponseDTO.ImageResponseDto;
  import org.springframework.context.annotation.Lazy;
  import org.springframework.http.ResponseEntity;
  import org.springframework.stereotype.Service;
+ import org.springframework.util.CollectionUtils;
 
  import java.time.LocalDateTime;
 import java.util.ArrayList;
  import java.util.List;
  import java.util.Optional;
+ import java.util.Set;
+ import java.util.stream.Collectors;
 
  @Service
  public class ImageService {
@@ -134,19 +137,32 @@ import java.util.ArrayList;
      /////////////////////////////////////// Bulk delete images ///////////////////////////////////////////////////
 
      public ResponseEntity<SuccessResponseDto> deleteMultipleImages(List<Integer> imageIds) {
-         if (imageIds == null || imageIds.isEmpty()) {
+         if (CollectionUtils.isEmpty(imageIds)) {
              throw new IllegalArgumentException("Image IDs list cannot be empty.");
          }
+         // Convert list to Set for uniqueness
+         Set<Integer> uniqueImageIds = Set.copyOf(imageIds);
 
-         List<Images> imagesToDelete = imageRepository.findAllById(imageIds);
+         // Fetch existing images in a single query
+         List<Images> imagesToDelete = imageRepository.findAllById(uniqueImageIds);
 
-         if (imagesToDelete.isEmpty()) {
-             throw new ImageNotFoundException("No images found for the provided IDs.");
+         // Identify missing image IDs
+         Set<Integer> foundIds = imagesToDelete.stream()
+                 .map(Images::getImageId)
+                 .collect(Collectors.toSet());
+
+         List<Integer> missingIds = uniqueImageIds.stream()
+                 .filter(id -> !foundIds.contains(id))
+                 .toList();
+
+         if (!missingIds.isEmpty()) {
+             throw new ImageNotFoundException("No images found for the provided IDs: " + missingIds);
          }
 
+         // Delete all images in a batch operation
          imageRepository.deleteAll(imagesToDelete);
 
-         return ResponseEntity.ok(new SuccessResponseDto("Images deleted successfully"));
+         return ResponseEntity.ok(new SuccessResponseDto(imagesToDelete.size() + " images deleted successfully"));
      }
 
     ////////////////////////////////////// called by product service //////////////////////////////////////////////////////////

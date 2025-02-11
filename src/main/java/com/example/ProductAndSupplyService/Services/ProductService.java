@@ -87,14 +87,22 @@ public class ProductService {
     }
 
 //     this method checks that the image is valid (eg :- .jpg, .png type)
+     private void validateImageLink(List<String> imageUrls){
 
-    // private void validateImageLink(List<String> list){
+         boolean hasInvalidUrl = imageUrls.stream()
+                 .anyMatch(url -> url == null || url.trim().isEmpty() || !isValidImageFormat(url));
 
-    //     if (list.stream()
-    //             .anyMatch(img -> img == null || img.trim().isEmpty())) {
-    //         throw new ImageNotFoundException("Image URL cannot be blank");
-    //     }
-    // }
+         System.out.println("Validation executed. Invalid URL found: " + hasInvalidUrl);
+
+         if (hasInvalidUrl) {
+             throw new ImageNotFoundException("Image URL cannot be blank and must be in .jpg or .png format");
+         }
+
+     }
+    // Helper method to check if URL has a valid format
+    private boolean isValidImageFormat(String imageUrl) {
+        return imageUrl.matches("(?i)^https?://.*\\.(jpg|jpeg|png)$");
+    }
 
 ///////////////////////////////// Creating the product ///////////////////////////////////////////////////////////////
 
@@ -102,7 +110,7 @@ public class ProductService {
 
         try {
 //             Check if images are provided
-//            validateImages(productCreationRequestDto.getImages());
+            validateImageLink(productCreationRequestDto.getImages());
 
             // Creating the product (without images)
             Products products = createProductDtoToProduct(productCreationRequestDto);
@@ -119,6 +127,9 @@ public class ProductService {
 
             // Return ResponseEntity with the built response
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        }
+        catch (ImageNotFoundException e){
+            throw new ImageNotFoundException("Each image URL must be valid and in .jpg or .png format");
         }
         catch (Exception e) {
             throw new InternalServerErrorException("Cannot create the product due to an Internal Server Error");
@@ -158,8 +169,8 @@ public class ProductService {
         productRepository.save(product);
 
         // Handle Image Updates (Append New Images)
-//        if (productUpdationRequestDto.getImages() != null && !productUpdationRequestDto.getImages().isEmpty()) {
-//            validateImages(productUpdationRequestDto.getImages());
+        if (productUpdationRequestDto.getImages() != null && !productUpdationRequestDto.getImages().isEmpty()) {
+            validateImageLink(productUpdationRequestDto.getImages());
 
             // Save each image and associate with the product
             List<Images> newImages = productUpdationRequestDto.getImages().stream()
@@ -182,7 +193,7 @@ public class ProductService {
             }
             // Append new images to existing ones
             product.getImages().addAll(newImages);
-//        }
+        }
         ProductResponseDto responseDto = getProductResponseDto(product);
         // Return success response with updated product (including images)
         return ResponseEntity.ok(responseDto);
