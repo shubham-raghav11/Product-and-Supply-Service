@@ -159,7 +159,7 @@ import java.util.ArrayList;
          imageRepository.saveAll(newImages);
      }
 
-     public Optional<Images> findById(Integer imageId) {
+     public Optional<Images> getImageByImageId(Integer imageId) {
         return imageRepository.findById(imageId);
      }
 

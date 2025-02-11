@@ -44,6 +44,9 @@ public class ImageController {
        return imageService.deleteMultipleImages(imageIds);
    }
 
+
+//////////////////////////////////////////// Search api's /////////////////////////////////////////////////////////
+
    @GetMapping("/search/images/{imageId}")
    public ResponseEntity<SuccessResponseDto> getImageByImageId(@PathVariable Integer imageId){
        return searchService.getImageByImageId(imageId);

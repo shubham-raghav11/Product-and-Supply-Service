@@ -14,14 +14,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "Products")
+@Table(name = "products")
 public class Products {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "product_Name", nullable = false)
+    @Column(name = "product_name", nullable = false)
     private String productName;
 
     @Column(name = "description", nullable = false)
@@ -33,22 +33,22 @@ public class Products {
     @Column(name = "category", nullable = false)
     private Category category;
 
-    @Column(name = "is_Active")
+    @Column(name = "is_active")
     private Boolean isActive;
 
-    @Column(name = "created_At", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "created_By", updatable = false)
+    @Column(name = "created_by", updatable = false)
     private String createdBy;
 
-    @Column(name = "updated_At")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "updated_By")
+    @Column(name = "updated_by")
     private String updatedBy;
 
-    @Column(name = "brand_Name", nullable = false)
+    @Column(name = "brand_name", nullable = false)
     private String brandName;
 
     public Integer getId() {

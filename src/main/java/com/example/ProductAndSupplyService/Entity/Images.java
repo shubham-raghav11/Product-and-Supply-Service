@@ -22,27 +22,27 @@ public class Images {
     private Integer imageId;
 
     @ManyToOne()
-    @JoinColumn(name = "product_Id")
+    @JoinColumn(name = "product_id")
     @JsonIgnore
     private Products products;
 
     @NotBlank(message = "Image URL cannot be blank")
-    @Column(name = "image_Url")
+    @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "created_By", updatable = false)
+    @Column(name = "created_by", updatable = false)
     private String createdBy;
 
-    @Column(name = "created_At", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_By")
+    @Column(name = "updated_by")
     private String updatedBy;
 
-    @Column(name = "updated_At")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_Primary")
+    @Column(name = "is_primary")
     private Boolean isPrimary;
 
     public Integer getImageId() {
@@ -107,10 +107,6 @@ public class Images {
 
     public void setPrimary(Boolean primary) {
         isPrimary = primary;
-    }
-
-    public Boolean getIsPrimary(Boolean b) {
-        return b;
     }
 }
 

@@ -131,7 +131,7 @@ public class SearchService {
     /////////////////////////////////////// get image by image id //////////////////////////////////////////
 
     public ResponseEntity<SuccessResponseDto> getImageByImageId(Integer imageId){
-        Optional<Images> opt = imageService.findById(imageId);
+        Optional<Images> opt = imageService.getImageByImageId(imageId);
 
         if (opt.isEmpty()) {
             throw new ImageNotFoundException("Image with ID " + imageId + " not found.");

@@ -1,6 +1,5 @@
 package com.example.ProductAndSupplyService.Services;
 
-
 import com.example.ProductAndSupplyService.Entity.Images;
 import com.example.ProductAndSupplyService.Entity.Products;
 import com.example.ProductAndSupplyService.Exceptions.ImageNotFoundException;
@@ -89,13 +88,13 @@ public class ProductService {
 
 //     this method checks that the image is valid (eg :- .jpg, .png type)
 
-    private void validateImageLink(List<String> list){
+    // private void validateImageLink(List<String> list){
 
-        if (list.stream()
-                .anyMatch(img -> img == null || img.trim().isEmpty())) {
-            throw new ImageNotFoundException("Image URL cannot be blank");
-        }
-    }
+    //     if (list.stream()
+    //             .anyMatch(img -> img == null || img.trim().isEmpty())) {
+    //         throw new ImageNotFoundException("Image URL cannot be blank");
+    //     }
+    // }
 
 ///////////////////////////////// Creating the product ///////////////////////////////////////////////////////////////
 
