@@ -1,0 +1,26 @@
+package com.example.ProductAndSupplyService.Enums;
+
+
+public enum Category {
+    ELECTRONICS,
+    FASHION,
+    HOME_APPLIANCES,
+    BEAUTY,
+    HEALTHCARE,
+    SPORTS,
+    TOYS,
+    AUTOMOTIVE,
+    BOOKS,
+    GROCERY,
+    FURNITURE,
+    PET_SUPPLIES,
+    MUSIC_INSTRUMENTS,
+    OFFICE_SUPPLIES,
+    BABY_PRODUCTS,
+    JEWELRY,
+    FOOTWEAR,
+    GARDENING,
+    SMARTPHONES,
+    TRAVEL_ACCESSORIES;
+}
+
